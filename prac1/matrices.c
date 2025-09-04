@@ -46,6 +46,10 @@ void triangular(int *A, int ***B, int n)
             {
                 (*A)[i][j] = -1;
             }
+            else
+            {
+                (*A)[i][j] = 
+            }
         }
     }
 }
