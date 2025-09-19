@@ -3,6 +3,7 @@
 
 int explin(int a, int n);
 int explog(int a, int n);
+int ammodn(int a, int m, int n, int MODE);
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
             scanf("%d", &n);
 			printf("Ingresa el modo:\n");
             scanf("%d", &mode);
-            res = ammodn(x, y, mode);
+            res = ammodn(a, m, n, mode);
             
             printf("Resultado %d^%d mod %d = %d\n", a, m, n, res);
 			break;
@@ -27,7 +28,7 @@ int main(int argc, char *argv[])
             m = strtoull(argv[2], NULL, 10);
             n = strtoull(argv[3], NULL, 10);
             mode = strtoull(argv[4], NULL, 10);
-            res = ammodn(x, y, mode);
+            res = ammodn(a, m, n, mode);
 			
 			printf("Resultado %d^%d mod %d = %d\n", a, m, n, res);
 			break;
@@ -48,11 +49,13 @@ int ammodn(int a, int m, int n, int MODE)
 		//potencia lineal
 		case 0:
 			pot = explin(a, m);
+			printf("pot: %d\n", pot);
 			res = pot % n;
 			break;
 		//potencia logaritmica
 		case 1:
 			pot = explog(a, m);
+			printf("pot: %d\n", pot);
 			res = pot % n;
 			break;
 		default:
@@ -60,6 +63,8 @@ int ammodn(int a, int m, int n, int MODE)
 			return -1;
 			break;
 	}
+	
+	return res;
 }
 
 int explin(int a, int n)
