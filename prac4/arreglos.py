@@ -1,3 +1,4 @@
+#merge 2 arreglos
 def merge(A, B):
     i, j = 0, 0
     C = []
@@ -16,19 +17,16 @@ def merge(A, B):
         C.append(B[j])
         j += 1
     return C
-
+#funcion recursiva
 def combine(arrays):
     if not arrays:
         return []
     if len(arrays) == 1:
         return arrays[0]
-
     mitad = len(arrays) // 2
     izq = combine(arrays[:mitad])
     der = combine(arrays[mitad:])
-
     return merge(izq, der)
-
 # Ejemplo de prueba
 A1 = [1, 4, 7]
 A2 = [2, 5, 8]
@@ -36,4 +34,5 @@ A3 = [0, 3, 6]
 A4 = [9, 10, 11]
 
 lista = [A1, A2, A3, A4]
+print("Lista sin ordenar:", lista)
 print("Combinar k arreglos:", combine(lista))
