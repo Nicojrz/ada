@@ -19,6 +19,12 @@ def minmax(A):
     M = maxdif(A, 0, len(A)-1)
     return abs(M[1] - M[0])
 
-lista = [4, 5, 10, -2, 3.1415, -7.115]
-print("Lista original:", lista)
-print(f"Maxima diferencia: {minmax(lista):.3f}")
+lista1 = [4, 5, 10, -2, 3.1415, -7.115]
+print("Lista original:", lista1)
+print(f"Maxima diferencia: {minmax(lista1):.3f}")
+lista2 = [43, 12, 0, -234, 23, 58, 39]
+print("Lista original:", lista2)
+print(f"Maxima diferencia: {minmax(lista2):.3f}")
+lista3 = [-443.33, 302.32, 958.3685, 3.33, -34.35, -1192.2]
+print("Lista original:", lista3)
+print(f"Maxima diferencia: {minmax(lista3):.3f}")
