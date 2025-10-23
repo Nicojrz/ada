@@ -25,6 +25,16 @@ def randTareas(n):
         L.append(t)
     return L
 
+def imprimirTareas(tareas, estado):
+    print(f"Tareas con el estado: {estado}")
+    i = 0
+    for tarea in tareas:
+        if tarea.estado == estado:
+            i = i + 1
+            print(f"[{i}] - {tarea.nombre}, {tarea.duracion} horas, completada: {tarea.estado}")
+    if i == 0:
+        print(f"No hay tareas con el estado: {estado}")
+
 if __name__ == "__main__":
     i = 0
     num = int(input("Ingresa el numero de tareas a generar: \n"))
@@ -32,3 +42,5 @@ if __name__ == "__main__":
     for tarea in listaTareas:
         i = i + 1 
         print(f"[{i}] - {tarea.nombre}, {tarea.duracion} horas, completada: {tarea.estado}")
+    estado = bool(input("Ver tareas con estado ? (true/enter si false)\n"))
+    imprimirTareas(listaTareas, estado)
