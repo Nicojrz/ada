@@ -32,7 +32,10 @@ A1 = [1, 4, 7]
 A2 = [2, 5, 8]
 A3 = [0, 3, 6]
 A4 = [9, 10, 11]
+A5 = [1, 4, 7]
+A6 = [2, 5, 8]
+A7 = [0, 3, 6]
 
-lista = [A1, A2, A3, A4]
+lista = [A1, A2, A3, A4, A5, A6, A7]
 print("Lista sin ordenar:", lista)
 print("Combinar k arreglos:", combine(lista))
