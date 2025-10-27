@@ -20,27 +20,48 @@ def randTareas(n):
     lenActividades = len(listaActividades) - 1
     for i in range(n):
         randomIndex = random.randint(0, lenActividades)
-        randomHoras = random.randint(1, 10)
+        randomHoras = random.randint(1, 8)
         t = Tarea(listaActividades[randomIndex], randomHoras)
         L.append(t)
     return L
-
-def imprimirTareas(tareas, estado):
-    print(f"Tareas con el estado: {estado}")
+        
+def quickSortTareas(listaTareas):
+    if len(listaTareas) <= 1:
+        return listaTareas
+    else:
+        piv = listaTareas[len(listaTareas) // 2]
+        izq = [tarea for tarea in listaTareas if tarea.duracion < piv.duracion]
+        mid = [tarea for tarea in listaTareas if tarea.duracion == piv.duracion]
+        der = [tarea for tarea in listaTareas if tarea.duracion > piv.duracion]
+        return quickSortTareas(izq) + mid + quickSortTareas(der)
+        
+def maxTareas(listaTareas, tiempoHoras):
     i = 0
-    for tarea in tareas:
-        if tarea.estado == estado:
-            i = i + 1
-            print(f"[{i}] - {tarea.nombre}, {tarea.duracion} horas, completada: {tarea.estado}")
-    if i == 0:
-        print(f"No hay tareas con el estado: {estado}")
-
-if __name__ == "__main__":
+    listaOrdenada = quickSortTareas(listaTareas)
+    tiempoTotal = 0
+    tareasSeleccionadas = []
+    for tarea in listaOrdenada:
+        totalTemp = tiempoTotal + tarea.duracion
+        if (totalTemp) <= tiempoHoras:
+            tiempoTotal = totalTemp
+            tarea.estado = True
+            tareasSeleccionadas.append(tarea)
+        else:
+            break
+    return tareasSeleccionadas
+    
+def printTareas(listaTareas):
     i = 0
-    num = int(input("Ingresa el numero de tareas a generar: \n"))
-    listaTareas = randTareas(num)
     for tarea in listaTareas:
         i = i + 1 
         print(f"[{i}] - {tarea.nombre}, {tarea.duracion} horas, completada: {tarea.estado}")
-    estado = bool(input("Ver tareas con estado ? (true/enter si false)\n"))
-    imprimirTareas(listaTareas, estado)
+    print()
+
+if __name__ == "__main__":
+    num = random.randint(1,20)
+    print(f"Tareas a realizar en 8 horas: {num}\n")
+    listaTareas = randTareas(num)
+    printTareas(listaTareas)
+    tareasSeleccionadas = maxTareas(listaTareas, 8)
+    print(f"Tareas optimizadas:\n")
+    printTareas(tareasSeleccionadas)
