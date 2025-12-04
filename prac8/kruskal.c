@@ -1,273 +1,200 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-/* ================================
-   ESTRUCTURA DISJOINT SET (UNION-FIND)
-   ================================ */
+// DISJOINT-SET
 
-typedef struct DisjointSet {
-    int parent;
-    int rank;
-} DisjointSet;
+typedef struct {
+    int padre;
+    int rango;
+} Conjunto;
 
-/* Crea un conjunto con un único elemento */
-void makeSet(DisjointSet ds[], int v)
+void crearConjunto(Conjunto conjuntos[], int n)
 {
-    ds[v].parent = v;
-    ds[v].rank = 0;
-}
-
-/* Encuentra la raíz del conjunto (con compresión de camino) */
-int find(DisjointSet ds[], int v)
-{
-    if (ds[v].parent != v)
-        ds[v].parent = find(ds, ds[v].parent);
-    return ds[v].parent;
-}
-
-/* Une dos conjuntos */
-void unionSet(DisjointSet ds[], int a, int b)
-{
-    int rootA = find(ds, a);
-    int rootB = find(ds, b);
-
-    if (rootA == rootB) return;
-
-    if (ds[rootA].rank < ds[rootB].rank)
-        ds[rootA].parent = rootB;
-    else if (ds[rootA].rank > ds[rootB].rank)
-        ds[rootB].parent = rootA;
-    else
+    for (int i = 0; i < n; i++)
 	{
-        ds[rootB].parent = rootA;
-        ds[rootA].rank++;
+        conjuntos[i].padre = i;
+        conjuntos[i].rango = 0;
     }
 }
 
-/* ================================
-   REPRESENTACIÓN DEL GRAFO
-   Lista de adyacencia
-   ================================ */
-
-typedef struct Edge {
-    int u, v;
-    int w;
-} Edge;
-
-typedef struct AdjNode {
-    int v, w;
-    struct AdjNode *next;
-} AdjNode;
-
-typedef struct Graph {
-    int V, E;
-    AdjNode **adj;
-    Edge *edges;
-} Graph;
-
-/* Crear nodo de lista de adyacencia */
-AdjNode* newNode(int v, int w)
+int encontrar(Conjunto conjuntos[], int x)
 {
-    AdjNode* n = malloc(sizeof(AdjNode));
-    n->v = v;
-    n->w = w;
-    n->next = NULL;
-    return n;
+    if (conjuntos[x].padre != x)
+        conjuntos[x].padre = encontrar(conjuntos, conjuntos[x].padre);
+    return conjuntos[x].padre;
 }
 
-/* Crear grafo */
-struct Graph createGraph(int V, int E)
+void unir(Conjunto conjuntos[], int x, int y)
 {
-    Graph g;
-    g.V = V;
-    g.E = E;
-    g.adj = malloc(V * sizeof(AdjNode*));
-    g.edges = malloc(E * sizeof(Edge));
+    int rx = encontrar(conjuntos, x);
+    int ry = encontrar(conjuntos, y);
 
-    for (int i = 0; i < V; i++)
-        g.adj[i] = NULL;
-
-    return g;
-}
-
-/* Agregar arista no dirigida */
-void addEdge(struct Graph *g, int index, int u, int v, int w)
-{
-    g->edges[index].u = u;
-    g->edges[index].v = v;
-    g->edges[index].w = w;
-
-    AdjNode *n1 = newNode(v, w);
-    n1->next = g->adj[u];
-    g->adj[u] = n1;
-
-    AdjNode *n2 = newNode(u, w);
-    n2->next = g->adj[v];
-    g->adj[v] = n2;
-}
-
-/* ================================
-   ORDENAMIENTO DE ARISTAS (BUBBLE SORT SIMPLE)
-   ================================ */
-   
-void merge(Edge arr[], int left, int mid, int right)
-{
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
-
-    Edge *L = malloc(n1 * sizeof(struct Edge));
-    Edge *R = malloc(n2 * sizeof(struct Edge));
-
-    for (int i = 0; i < n1; i++)
-        L[i] = arr[left + i];
-    for (int j = 0; j < n2; j++)
-        R[j] = arr[mid + 1 + j];
-
-    int i = 0, j = 0, k = left;
-
-    while (i < n1 && j < n2)
+    if (rx != ry)
 	{
-        if (L[i].w <= R[j].w)
+        if (conjuntos[rx].rango < conjuntos[ry].rango)
+            conjuntos[rx].padre = ry;
+        else if (conjuntos[rx].rango > conjuntos[ry].rango)
+            conjuntos[ry].padre = rx;
+        else
 		{
-            arr[k] = L[i];
-            i++;
+            conjuntos[ry].padre = rx;
+            conjuntos[rx].rango++;
+        }
+    }
+}
+
+// NODOS
+
+typedef struct {
+    int origen;
+    int destino;
+    int peso;
+} Arista;
+
+// Implementación de merge-sort para aristas.
+void merge(Arista arr[], int izq, int mid, int der)
+{
+    int tam1 = mid - izq + 1;
+    int tam2 = der - mid;
+
+    Arista *izquierda = malloc(tam1 * sizeof(Arista));
+    Arista *derecha = malloc(tam2 * sizeof(Arista));
+
+    for (int i = 0; i < tam1; i++) izquierda[i] = arr[izq + i];
+    for (int i = 0; i < tam2; i++) derecha[i] = arr[mid + 1 + i];
+
+    int i = 0, j = 0, k = izq;
+
+    while (i < tam1 && j < tam2)
+	{
+        if (izquierda[i].peso <= derecha[j].peso)
+		{
+            arr[k++] = izquierda[i++];
         }
 		else
 		{
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i < n1)
-	{
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-    while (j < n2)
-	{
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-
-    free(L);
-    free(R);
-}
-
-void mergeSort(Edge arr[], int left, int right)
-{
-    if (left < right)
-	{
-        int mid = left + (right - left) / 2;
-
-        mergeSort(arr, left, mid);
-        mergeSort(arr, mid + 1, right);
-
-        merge(arr, left, mid, right);
-    }
-}
-
-void sortEdges(Edge edges[], int E)
-{
-	mergeSort(edges, 0, E - 1);
-}
-
-/* ================================
-   ALGORITMO DE KRUSKAL
-   ================================ */
-
-void kruskal(Graph g)
-{
-    printf("\n=== EJECUCION DEL ALGORITMO DE KRUSKAL ===\n");
-
-    DisjointSet *ds = malloc(g.V * sizeof(DisjointSet));
-
-    for (int i = 0; i < g.V; i++)
-        makeSet(ds, i);
-
-    sortEdges(g.edges, g.E);
-
-    int total = 0;
-
-    printf("Aristas ordenadas por peso:\n");
-    for (int i = 0; i < g.E; i++)
-        printf("(%d -- %d) w=%d\n", g.edges[i].u, g.edges[i].v, g.edges[i].w);
-
-    printf("\nProceso paso a paso:\n");
-
-    for (int i = 0; i < g.E; i++)
-	{
-        int u = g.edges[i].u;
-        int v = g.edges[i].v;
-        int w = g.edges[i].w;
-
-        int setU = find(ds, u);
-        int setV = find(ds, v);
-
-        printf("Evaluando arista (%d - %d) w=%d -> ", u, v, w);
-
-        if (setU != setV) {
-            printf("ACEPTADA\n");
-            total += w;
-            unionSet(ds, setU, setV);
-        } else {
-            printf("RECHAZADA (forma ciclo)\n");
+            arr[k++] = derecha[j++];
         }
     }
 
-    printf("\nCosto total del arbol de expansion minima: %d\n", total);
-    free(ds);
+    while (i < tam1) arr[k++] = izquierda[i++];
+    while (j < tam2) arr[k++] = derecha[j++];
+
+    free(izquierda);
+    free(derecha);
 }
 
-/* Genera un grafo aleatorio con V vértices y E aristas */
-void testRandom()
+void mergesort(Arista arr[], int izq, int der)
 {
-    printf("\n========== GRAFO ALEATORIO ==========\n");
-
-    srand(time(NULL));
-
-    int V = 3 + rand() % 6;      // entre 3 y 8 vértices
-    int maxEdges = V * (V - 1) / 2;
-
-    int E = (V - 1) + rand() % (maxEdges - (V - 1) + 1);  
-    // de un árbol (V-1) hasta completo
-
-    printf("Vertices: %d\n", V);
-    printf("Aristas: %d\n\n", E);
-
-    struct Graph g = createGraph(V, E);
-
-    // Matriz para evitar duplicados
-    int used[20][20] = {0};
-
-    for (int i = 0; i < E; i++)
+    if (izq < der)
 	{
-        int u, v;
-        do
+        int mid = (izq + der) / 2;
+        mergesort(arr, izq, mid);
+        mergesort(arr, mid + 1, der);
+        merge(arr, izq, mid, der);
+    }
+}
+
+// Grafo
+
+Arista* leerGrafo(char nombre_archivo[], int *n, int *m)
+{
+    FILE *archivo = fopen(nombre_archivo, "r");
+    if (!archivo)
+	{
+        printf("No se pudo abrir el archivo.\n");
+        exit(1);
+    }
+
+    fscanf(archivo, "%d %d", n, m);
+
+    Arista *aristas = malloc((*m) * sizeof(Arista));
+
+    for (int i = 0; i < *m; i++)
+	{
+        fscanf(archivo, "%d %d %d", 
+               &aristas[i].origen, &aristas[i].destino, &aristas[i].peso);
+    }
+
+    fclose(archivo);
+    return aristas;
+}
+
+// KRUSKAL
+
+void kruskal(Arista aristas[], int n, int m)
+{
+    printf("KRUSKAL ---\n");
+
+    // Ordenamos aristas
+    mergesort(aristas, 0, m - 1);
+
+    printf("Aristas ordenadas por peso (merge-sort)---\n");
+    for (int i = 0; i < m; i++)
+        printf("(%d, %d) peso = %d\n", aristas[i].origen, aristas[i].destino, aristas[i].peso);
+
+    Conjunto *conjuntos = malloc(n * sizeof(Conjunto));
+    crearConjunto(conjuntos, n);
+
+    Arista *mst = malloc((n - 1) * sizeof(Arista));
+    int total = 0, contador = 0;
+
+    printf("Paso a paso ---\n");
+
+    for (int i = 0; i < m; i++)
+	{
+        int u = aristas[i].origen;
+        int v = aristas[i].destino;
+
+        int ru = encontrar(conjuntos, u);
+        int rv = encontrar(conjuntos, v);
+
+        printf("Considerando arista (%d,%d) peso=%d\n", u, v, aristas[i].peso);
+
+        if (ru != rv)
 		{
-            u = rand() % V;
-            v = rand() % V;
+            printf("Se agrega al arbol (no forma ciclo)\n");
+            mst[contador++] = aristas[i];
+            total += aristas[i].peso;
+            unir(conjuntos, ru, rv);
         }
-		while (u == v || used[u][v] || used[v][u]);
-
-        used[u][v] = used[v][u] = 1;
-
-        int w = 1 + rand() % 20;   // pesos entre 1 y 20
-
-        addEdge(&g, i, u, v, w);
-        printf("Arista generada: (%d -- %d) w=%d\n", u, v, w);
+		else
+		{
+            printf("Se descarta (forma ciclo)\n");
+        }
     }
 
-    printf("\nEjecutando Kruskal sobre el grafo aleatorio...\n");
-    kruskal(g);
+    printf("Arbol de recubrimiento minimo ---\n");
+    for (int i = 0; i < contador; i++)
+        printf("(%d, %d) peso=%d\n", mst[i].origen, mst[i].destino, mst[i].peso);
+
+    printf("Costo total del arbol: %d\n", total);
+
+    free(conjuntos);
+    free(mst);
 }
+
+// MAIN
 
 int main()
 {
-    testRandom();
+    char archivo[100];
+	
+	printf("Ingresa el nombre del archivo:\n");
+    scanf("%s", archivo);
+
+    int n, m;
+    Arista *aristas = leerGrafo(archivo, &n, &m);
+
+    printf("Numero de nodos: %d\n", n);
+    printf("Numero de aristas: %d\n", m);
+
+    printf("Aristas leidas ---\n");
+    for (int i = 0; i < m; i++)
+        printf("(%d, %d) peso=%d\n", aristas[i].origen, aristas[i].destino, aristas[i].peso);
+
+    kruskal(aristas, n, m);
+
+    free(aristas);
     return 0;
 }
