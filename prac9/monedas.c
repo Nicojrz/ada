@@ -12,18 +12,15 @@ int cambio(int n, int k, int *D)
     int i, j;
     int *Dp = (int *)malloc(sizeof(int) * (n + 1));
 
-    for (i = 0; i <= n; i++) {
+    for (i = 0; i <= n; i++)
         Dp[i] = INT_MAX;
-    }
+	
     Dp[0] = 0;
 
-    for (i = 1; i <= n; i++) {
-        for (j = 0; j < k; j++) {
-            if (D[j] <= i) {
+    for (i = 1; i <= n; i++)
+        for (j = 0; j < k; j++)
+            if (D[j] <= i)
                 Dp[i] = mini(Dp[i], Dp[i - D[j]] + 1);
-            }
-        }
-    }
 
     int resultado = (Dp[n] == INT_MAX) ? -1 : Dp[n];
     free(Dp);
@@ -32,14 +29,27 @@ int cambio(int n, int k, int *D)
 
 int main()
 {
-    int i;
-    int den[3] = {1, 7, 10};
-    for (i = 0; i < 3; i++) {
-        printf("[%d] ", den[i]);
+    int i, mon, num;
+	
+	printf("Ingresa el monto a devolver...\n");
+	scanf("%d", &mon);
+	printf("Monto seleccionado: %d\n", mon);
+	
+	printf("Ingresa el numero de denominaciones...\n");
+	scanf("%d", &num);
+	printf("Numero de denominaciones: %d\n", num);
+	
+    int *den = (int *)malloc(sizeof(int) * num);
+    for (i = 0; i < num; i++)
+	{
+        printf("Ingresa la denominacion %d...\n", i+1);
+		scanf("%d", &den[i]);
     }
-    int cmin = cambio(15, 3, den);
+    int cmin = cambio(mon, num, den);
+	free(den);
+
     if (cmin != -1)
-        printf("\nCambio mínimo: %d\n", cmin);
+        printf("\nCambio minimo: %d\n", cmin);
     else
         printf("\nNo es posible hacer el cambio\n");
     return 0;
