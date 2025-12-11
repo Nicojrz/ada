@@ -14,12 +14,12 @@ int cambio(int n, int k, int *D)
 
     for (i = 0; i <= n; i++)
         Dp[i] = INT_MAX;
-	
+
     Dp[0] = 0;
 
     for (i = 1; i <= n; i++)
         for (j = 0; j < k; j++)
-            if (D[j] <= i)
+            if (D[j] <= i && Dp[i - D[j]] != INT_MAX)
                 Dp[i] = mini(Dp[i], Dp[i - D[j]] + 1);
 
     int resultado = (Dp[n] == INT_MAX) ? -1 : Dp[n];
